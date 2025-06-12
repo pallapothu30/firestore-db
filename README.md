@@ -76,3 +76,5 @@ License
 MIT
 
 Made with ❤️ using React, Vite, and Firebase.
+![alt text](image.png)
+![alt text](image-1.png)
