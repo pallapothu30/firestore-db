@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import app from "./firebase";
-import { getFirestore, collection, addDoc, getDocs } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, getDoc, doc, 
+  query, where
+ } from "firebase/firestore";
 import { Plus, Database, Upload } from "lucide-react"; // optional: for icons
 
 const db = getFirestore(app);
@@ -26,11 +28,12 @@ const App = () => {
     { SectorSide: "Vijayawada South", SectorNumber: 42 },
   ];
 
+  // 
   const makeSubCollections = async () => {
     try {
       for (const docData of data) {
         const result = await addDoc(
-          collection(db, "cities/68z8GKeMZpRB383ombtf/sectors"),
+          collection(db, "cities/m2JH6srV4Y0qIQPDKv2I/sectors"),
           docData
         );
         console.log("Subcollection doc ID:", result.id);
@@ -40,6 +43,22 @@ const App = () => {
     }
   };
 
+  // Reading SingleDocument from collection using document ID
+  const readSingleDoc = async()=>{
+    try{
+      const docRef = doc(db,"cities/m2JH6srV4Y0qIQPDKv2I/sectors", "KkTOvhs2lseQQa0pLY4u");
+      const docSnap = await getDoc(docRef)
+
+      if(docSnap.exists()){
+        console.log("Document FOund", docSnap.data());
+      }else{
+        console.log("No such Document exits in this collect");
+      }
+    }catch(error){
+      console.log("Error",error);
+    }
+  }
+  // reading entire collection / multiple docs at one time.
   const readDatafromDB = async () => {
     const querySnapshot = await getDocs(collection(db, "users"));
     const users = [];
@@ -50,6 +69,20 @@ const App = () => {
 
     setUserData(users);
   };
+ 
+  // retrive a document based on know field values.
+
+  const getDocumentsByQuery = async()=>{
+    try{const sectorRef = collection(db,"cities")
+    const q = query(sectorRef, where("name", "==", "Vijayawada"))
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      console.log(doc.id, " => ", doc.data());
+    });}
+    catch(error){
+      console.log("error=>", error);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-blue-100 to-purple-100 p-6">
@@ -61,7 +94,7 @@ const App = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-white">
           <button
-            onClick={writeDatatoDB}
+            // onClick={writeDatatoDB}
             className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 transition-all px-5 py-3 rounded-xl shadow-md"
           >
             <Plus className="w-5 h-5" />
@@ -69,7 +102,7 @@ const App = () => {
           </button>
 
           <button
-            onClick={makeSubCollections}
+            // onClick={makeSubCollections}
             className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 transition-all px-5 py-3 rounded-xl shadow-md"
           >
             <Upload className="w-5 h-5" />
@@ -77,7 +110,7 @@ const App = () => {
           </button>
 
           <button
-            onClick={readDatafromDB}
+            onClick={getDocumentsByQuery}
             className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 transition-all px-5 py-3 rounded-xl shadow-md"
           >
             <Database className="w-5 h-5" />
